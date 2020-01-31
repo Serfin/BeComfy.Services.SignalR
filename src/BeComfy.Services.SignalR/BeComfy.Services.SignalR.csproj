@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BeComfy.Common\src\BeComfy.Common\BeComfy.Common.csproj" />
+  </ItemGroup>
+
 </Project>

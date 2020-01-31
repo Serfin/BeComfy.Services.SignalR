@@ -1,10 +1,9 @@
-using System.IO;
+using BeComfy.Common.Authentication;
 using BeComfy.Services.SignalR.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 namespace BeComfy.Services.SignalR
@@ -13,7 +12,15 @@ namespace BeComfy.Services.SignalR
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddJwt();
             services.AddSignalR();
+            services.AddCors(options => options.AddPolicy("CorsPolicy", 
+                builder => 
+                {
+                    builder.AllowAnyMethod().AllowAnyHeader()
+                        .WithOrigins("http://localhost:5000")
+                        .AllowCredentials();
+                }));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -21,12 +28,15 @@ namespace BeComfy.Services.SignalR
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
+            }      
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseCors("CorsPolicy");
+            app.UseAuthorization();
+            app.UseAuthentication();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/Home", async context =>
