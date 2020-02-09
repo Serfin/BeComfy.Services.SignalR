@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using BeComfy.Common.Authentication;
+using BeComfy.Services.SignalR.Operations;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
@@ -9,69 +10,47 @@ namespace BeComfy.Services.SignalR.Hubs
 {
     public class ClientProcessHub : Hub
     {
-        private IJwtHandler _jwtHandler;
-        private ILogger _logger;
+        private readonly IJwtHandler _jwtHandler;
 
-        public ClientProcessHub(IJwtHandler jwtHandler, ILogger<ClientProcessHub> logger)
+        public ClientProcessHub(IJwtHandler jwtHandler)
         {
             _jwtHandler = jwtHandler;
-            _logger = logger;
         }
 
-        public async Task SendMessage(string user, string message)
+        public async Task InitializeAsync(string token)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
-
-        public async Task Authenticate(string jwt)
-        {
-            Guid? userId = null;
-
-            if (string.IsNullOrEmpty(jwt))
+            if (string.IsNullOrWhiteSpace(token))
             {
-                _logger.LogInformation($"Hub received empty token");
-                await DisconnectUserAsync();
+                await DisconnectAsync();
             }
-
             try
             {
-                var jwtToken = _jwtHandler.GetTokenPayload(jwt);
-                if (jwtToken == null)
+                var payload = _jwtHandler.GetTokenPayload(token);
+                if (payload == null)
                 {
-                    await DisconnectUserAsync();
+                    await DisconnectAsync();
+                    
                     return;
                 }
 
-                userId = Guid.Parse(jwtToken.Subject);
-                var userGroup = userId.Value.ToUserGroup();
-                await Groups.AddToGroupAsync(Context.ConnectionId, userGroup);
-                await ConnectUserAsync(userId);
+                var group = Guid.Parse(payload.Subject).ToUserGroup();
+                await Groups.AddToGroupAsync(Context.ConnectionId, group);
+                await ConnectAsync(group);
             }
             catch
             {
-                await DisconnectUserAsync(userId);
+                await DisconnectAsync();
             }
         }
 
-        private async Task ConnectUserAsync(Guid? userId)
+        private async Task ConnectAsync(string userGroup)
         {
-            _logger.LogInformation($"User: '{userId.Value}' connected to Hub!");
-            await Clients.Client(Context.ConnectionId)
-                .SendAsync("connected");
+            await Clients.Client(Context.ConnectionId).SendAsync("connected", userGroup);
         }
 
-        private async Task DisconnectUserAsync(Guid? userId = null)
+        private async Task DisconnectAsync()
         {
-            if (userId is null)
-            {
-                _logger.LogInformation($"User disconnected from Hub!");
-            }
-            else
-            {
-                _logger.LogInformation($"User '{userId.Value}' disconnected from Hub!");
-            }
-            await Clients.Client(Context.ConnectionId)
-                .SendAsync("disconnected");
+            await Clients.Client(Context.ConnectionId).SendAsync("disconnected");
         }
     }
 }
