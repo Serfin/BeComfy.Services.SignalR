@@ -1,8 +1,19 @@
+using System;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using BeComfy.Common.Authentication;
+using BeComfy.Common.CqrsFlow;
+using BeComfy.Common.CqrsFlow.Handlers;
+using BeComfy.Common.RabbitMq;
 using BeComfy.Services.SignalR.Hubs;
+using BeComfy.Services.SignalR.HubServices;
+using BeComfy.Services.SignalR.OperationHandler;
+using BeComfy.Services.SignalR.Operations.Messages.Customers;
+using BeComfy.Services.SignalR.Operations.Messages.Tickets;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -10,10 +21,20 @@ namespace BeComfy.Services.SignalR
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+        
+        public IConfiguration Configuration { get; }
+        public IContainer Container { get; private set; }
+
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddJwt();
             services.AddSignalR();
+            services.AddTransient<IHubWrapper, HubWrapper>();
+            services.AddTransient<IHubMessageManager, HubMessageManager>();
             services.AddCors(options => options.AddPolicy("CorsPolicy", 
                 builder => 
                 {
@@ -21,6 +42,16 @@ namespace BeComfy.Services.SignalR
                         .WithOrigins("http://localhost:5000")
                         .AllowCredentials();
                 }));
+
+            var builder = new ContainerBuilder();
+            builder.Populate(services);
+            builder.AddHandlers();
+            builder.AddDispatcher();
+            builder.AddRabbitMq();
+
+            Container = builder.Build();
+
+            return new AutofacServiceProvider(Container);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -46,6 +77,11 @@ namespace BeComfy.Services.SignalR
                 
                 endpoints.MapHub<ClientProcessHub>("/processHub");
             });
+
+            app.UseRabbitMq()
+                .SubscribeEvent<TicketBought>()
+                .SubscribeEvent<BuyTicketRejected>()
+                .SubscribeEvent<CreateCustomerRejected>();
         }
     }
 }
