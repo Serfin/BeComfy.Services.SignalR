@@ -32,16 +32,16 @@ namespace BeComfy.Services.SignalR
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddJwt();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", cors => 
+                        cors.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader());
+            });
             services.AddSignalR();
             services.AddTransient<IHubWrapper, HubWrapper>();
             services.AddTransient<IHubMessageManager, HubMessageManager>();
-            services.AddCors(options => options.AddPolicy("CorsPolicy", 
-                builder => 
-                {
-                    builder.AllowAnyMethod().AllowAnyHeader()
-                        .WithOrigins("http://localhost:5000")
-                        .AllowCredentials();
-                }));
 
             var builder = new ContainerBuilder();
             builder.Populate(services);
