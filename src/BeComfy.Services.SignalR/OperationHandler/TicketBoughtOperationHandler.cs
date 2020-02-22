@@ -27,7 +27,8 @@ namespace BeComfy.Services.SignalR.OperationHandler
                     Code = null,
                     Reason = null,
                     Name = "ticket_bought",
-                }, @event);
+                    Data = @event
+                });
         }
     }
 }

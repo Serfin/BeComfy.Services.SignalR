@@ -15,7 +15,7 @@ namespace BeComfy.Services.SignalR.HubServices
             _clientProcessHub = clientProcessHub;
         }
 
-        public Task PublishToUser(Guid userId, string messageName, IOperationResult operationResult, object data)
-            => _clientProcessHub.Clients.Group(userId.ToUserGroup()).SendAsync(messageName, operationResult, data);
+        public Task PublishToUser(Guid userId, string messageName, IOperationResult operationResult)
+            => _clientProcessHub.Clients.Group(userId.ToUserGroup()).SendAsync(messageName, operationResult);
     }
 }

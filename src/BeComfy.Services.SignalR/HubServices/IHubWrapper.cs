@@ -6,6 +6,6 @@ namespace BeComfy.Services.SignalR.HubServices
 {
     public interface IHubWrapper
     {
-        Task PublishToUser(Guid userId, string messageName, IOperationResult operationResult, object data);
+        Task PublishToUser(Guid userId, string messageName, IOperationResult operationResult);
     }
 }

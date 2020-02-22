@@ -15,6 +15,7 @@ namespace BeComfy.Services.SignalR.OperationHandler
         {
             _hubMessageManager = hubMessageManager;
         }
+        
         public async Task HandleAsync(BuyTicketRejected @event, ICorrelationContext context)
         {
             await _hubMessageManager.PublishOperationSuccessResult(@event.CustomerId,
@@ -26,7 +27,8 @@ namespace BeComfy.Services.SignalR.OperationHandler
                     Code = null,
                     Reason = null,
                     Name = "buy_ticket_rejected",
-                }, @event);        
+                    Data = @event
+                });        
         }
     }
 }

@@ -23,7 +23,6 @@ document.getElementById("btnLogin").addEventListener("click", function (event) {
 
             request.send(JSON.stringify(person));
             var response = JSON.parse(request.responseText);
-            console.log(response);
 
             if(request.status == 200) {
                 connection.invoke("InitializeAsync", response.accessToken);
@@ -57,12 +56,18 @@ connection.on("disconnected", function () {
     document.getElementById("messagesList").appendChild(li);
 })
 
-connection.on("operation_result_rejected", function (operationResult, data) {
+// Operation result
+
+connection.on("operation_result_success", function (operationResult) {
     var li = document.createElement("li");
     li.textContent = JSON.stringify(operationResult);
     document.getElementById("messagesList").appendChild(li);
+})
 
+connection.on("operation_result_rejected", function (operationResult) {
     var li = document.createElement("li");
-    li.textContent = JSON.stringify(data);
+    li.textContent = JSON.stringify(operationResult);
     document.getElementById("messagesList").appendChild(li);
 })
+
+// End of Operation result

@@ -13,10 +13,10 @@ namespace BeComfy.Services.SignalR.HubServices
             _hubWrapper = hubWrapper;
         }
 
-        public async Task PublishOperationSuccessResult(Guid userId, string message, IOperationResult operationResult, object data)
-            => await _hubWrapper.PublishToUser(userId, message, operationResult, data);
+        public async Task PublishOperationSuccessResult(Guid userId, string message, IOperationResult operationResult)
+            => await _hubWrapper.PublishToUser(userId, message, operationResult);
 
-        public async Task PublishOperationRejectedResult(Guid userId, string message,  IOperationResult operationResult, object data)
-            => await _hubWrapper.PublishToUser(userId, message, operationResult, data);
+        public async Task PublishOperationRejectedResult(Guid userId, string message,  IOperationResult operationResult)
+            => await _hubWrapper.PublishToUser(userId, message, operationResult);
     }
 }

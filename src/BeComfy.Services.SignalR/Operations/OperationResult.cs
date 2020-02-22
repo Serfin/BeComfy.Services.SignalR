@@ -7,5 +7,6 @@ namespace BeComfy.Services.SignalR.Operations
         public string Name { get; set; }
         public string Code { get; set; }
         public string Reason { get; set; }
+        public object Data { get; set; }
     }
 }

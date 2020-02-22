@@ -26,7 +26,8 @@ namespace BeComfy.Services.SignalR.OperationHandler
                     Code = null,
                     Reason = null,
                     Name = "create_customer_rejected",
-                }, @event);        
+                    Data = @event
+                });        
         }
     }
 }
