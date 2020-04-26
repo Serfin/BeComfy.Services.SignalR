@@ -5,6 +5,7 @@ using BeComfy.Common.Authentication;
 using BeComfy.Common.CqrsFlow;
 using BeComfy.Common.CqrsFlow.Handlers;
 using BeComfy.Common.RabbitMq;
+using BeComfy.Logging.Elk;
 using BeComfy.Services.SignalR.Hubs;
 using BeComfy.Services.SignalR.HubServices;
 using BeComfy.Services.SignalR.OperationHandler;

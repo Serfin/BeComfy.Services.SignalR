@@ -1,3 +1,4 @@
+using BeComfy.Logging.Elk;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,7 @@ namespace BeComfy.Services.SignalR
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseComfyLogger();
     }
 }
